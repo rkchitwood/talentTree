@@ -9,7 +9,6 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
-    #db.drop_all()
     db.create_all()
 
 class User(db.Model):
@@ -20,7 +19,7 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable = False, primary_key=True)
     password = db.Column(db.String(255), nullable = False)
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='cascade'))
-    is_admin = db.Column(db.Boolean, nullable = True)
+    is_admin = db.Column(db.Boolean, nullable = True, default = False)
 
     organization = db.relationship('Organization', backref='users')
 
@@ -62,6 +61,7 @@ class PendingUser(db.Model):
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'), nullable=False)
     token = db.Column(db.String(10), nullable=False, unique=True)
     expiration = db.Column(db.DateTime, nullable=False)
+    pending_admin = db.Column(db.Boolean, nullable = True, default=False)
     
 
 class Organization(db.Model):
@@ -70,7 +70,7 @@ class Organization(db.Model):
     __tablename__='organizations'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(50), unique=True)
     #logo_url = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
@@ -138,7 +138,7 @@ class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     domain = db.Column(db.String(50), unique=True, nullable = False)
     name = db.Column(db.String(30), nullable = False)
-    api_company_id = db.Column(db.Integer, db.ForeignKey('api_companies.id'), nullable = True)
+    #api_company_id = db.Column(db.Integer, db.ForeignKey('api_companies.id'), nullable = True)
 
     profiles = db.relationship('Profile', secondary='roles', backref='companies')
     roles = db.relationship('Role', backref='company', lazy='dynamic')
@@ -176,10 +176,12 @@ class Search(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id', ondelete='SET NULL'), nullable=True)
     level_id = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL'), nullable=True)
     function_id = db.Column(db.Integer, db.ForeignKey('functions.id', ondelete='SET NULL'), nullable=True)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=True)
 
     company = db.relationship('Company', backref='searches')
     level = db.relationship('Level', backref='searches')
     function = db.relationship('Function', backref='searches')
+    organization = db.relationship('Organization', backref='searches')
     search_profiles = db.relationship('SearchProfile', backref='searches')
     
     def __repr__(self):

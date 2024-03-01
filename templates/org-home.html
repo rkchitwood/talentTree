@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}talentTree - {{ org.name }}{% endblock %}
+{% block content %}
+<ul><h2>{{ org.name }} Users:</h2>
+    {% for u in users %}
+    <li>{{ u.email }}{% if u.is_admin %} - Admin{% endif %}</li>
+    {% endfor %}    
+</ul>
+<ul><h2>{{ org.name }} Searches:</h2>
+    {% if searches %}
+        {% for s in searches %}
+        <li>{{ s.level.name }}, {{ s.function.name }} for {{ s.company.name }}</li>
+        {% endfor %}
+    {% else %}
+        <li>No searches yet!</li>
+    {% endif %}
+</ul>
+{% endblock %}
