@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/jquery"></script>
     <!-- <script src="https://unpkg.com/popper"></script> -->
     <script src="https://unpkg.com/bootstrap"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <nav class="navbar navbar-expand">
@@ -20,13 +21,30 @@
                 <span>talentTree</span>
             </a>
           </div>
+        
+        <ul class="nav ml-auto justify-content-center">
+            {% if not g.user %}
+            <li class="nav-item nav-link"><a href='/signup'>Sign Up </a></li>
+            <li class="nav-item nav-link"><a href='/login'>Log In</a></li>
+            {% else %}
+                {% if g.user.is_admin %}
+                <li class="nav-item nav-link"><a href='/invite'>Invite</a></li>
+                {% endif %}
+            <li class="nav-item nav-link"><a href='/organizations/{{ g.user.organization_id }}'>{{ g.user.email }}</a></li>
+            <li class="nav-item nav-link"><a href="/logout">Logout</a></li>
+            {% endif %}
+        </ul>
         </div>
-      </nav>
-      <div class="container">
+    </nav>
+    <div class="container">
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      
         {% block content %}
         {% endblock %}
-      </div>
-      
-    
+        <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+    </div>   
 </body>
 </html>

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}talentTree Register{% endblock %}
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+      <h2 class="join-message">grow your team</h2>
+      <form method="POST" id="user-form">
+        {{ form.hidden_tag() }}
+  
+        {% for field in form if field.widget.input_type != 'hidden' %}
+          {% if field.type != 'BooleanField' %}
+            {% for error in field.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+            {{ field(placeholder=field.label.text, class="form-control") }}
+          {% else %}
+            <div class="form-check">
+              {{ field(class="form-check-input") }}
+              <label class="form-check-label">{{ field.label.text }}</label>
+            </div>
+          {% endif %}
+        {% endfor %}
+  
+        <button class="btn btn-primary btn-lg btn-block">invite</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

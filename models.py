@@ -9,7 +9,7 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
 class User(db.Model):
@@ -60,7 +60,7 @@ class PendingUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), nullable=False, unique=True)
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=False)
-    token = db.Column(db.String(10), nullable=False, unique=True)
+    token = db.Column(db.String(25), nullable=False, unique=True)
     expiration = db.Column(db.DateTime, nullable=False)
     pending_admin = db.Column(db.Boolean, nullable = True, default=False)
     

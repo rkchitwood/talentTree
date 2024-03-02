@@ -10,7 +10,6 @@ from security import generate_token, calculate_expiration
 from datetime import datetime
 
 CURR_USER_KEY = "curr_user"
-REGISTER = '/users/new/register'
 
 app = Flask(__name__)
 
@@ -46,7 +45,7 @@ def email_registration(email, token):
         body=f'''
     Welcome to talentTree! Please click the following link within
 24 hours to complete registration: 
-{REGISTER}/{token}
+/register/{token}
         '''
     )
 
@@ -106,7 +105,7 @@ def login():
     '''renders login form and handles submission'''
     form = LoginForm()
     if form.validate_on_submit():
-        email = form.username.data
+        email = form.email.data
         password = form.password.data
 
         user = User.authenticate(email, password)
@@ -114,7 +113,7 @@ def login():
             do_login(user)
             return redirect(f'/organizations/{user.organization_id}')
         else:
-            form.username.errors = ['Invalid username/password.']
+            form.email.errors = ['Invalid username/password.']
     return render_template('login.html', form=form)
 
 @app.route('/logout')
@@ -124,7 +123,7 @@ def logout():
     return redirect('/')
 
 
-@app.route('/register/admin', methods=['GET', 'POST'])
+@app.route('/signup', methods=['GET', 'POST'])
 def register_first_admin():
     '''displays form to register new admin-user and their organization and handles submit'''
 
@@ -171,7 +170,7 @@ def org_homepage(org_id):
         flash("Access Unauthorized", 'danger')
         return redirect('/')
     
-@app.route('/users/add', methods=['GET', 'POST'])
+@app.route('/invite', methods=['GET', 'POST'])
 def invite_users():
     '''returns a form allowing admin to invite others to their organization'''
 
@@ -183,24 +182,31 @@ def invite_users():
     if form.validate_on_submit():
         try:
             email = form.email.data
+            if User.query.filter_by(email=email).first():
+                raise ValueError
+            old_pending = PendingUser.query.filter_by(email=email).first()
+            if old_pending:
+                db.session.delete(old_pending)
+                db.session.commit()
             is_admin = form.is_admin.data
             pending_user = PendingUser(
                 email = email,
-                is_admin = is_admin,
+                pending_admin = is_admin,
                 organization_id = g.user.organization_id,
                 token = generate_token(),
                 expiration = calculate_expiration()
             )
-            email_registration(email, pending_user.token)
             db.session.add(pending_user)
             db.session.commit()
-            flash(f'Successfully invited {email}')
-            return render_template('invite-user.html', form=form)   
-        except IntegrityError:
+            email_registration(email, pending_user.token)
+            flash(f'Successfully invited {email}', 'success')
+            return redirect('/invite')
+        except ValueError:
             flash("Username already taken", 'danger')
-            return render_template('invite-user.html', form=form)
+            return render_template('invite-user.html', form=form)   
+    return render_template('invite-user.html', form=form)
 
-@app.route('/users/pending/<token>', methods=['GET', 'POST'])
+@app.route('/register/<token>', methods=['GET', 'POST'])
 def token_registration(token):
     '''allows a new user to register from an emailed link and handles submission'''
     pending_user = PendingUser.query.filter_by(token=token).first()
@@ -217,6 +223,7 @@ def token_registration(token):
                         password=password, 
                         organization_id=pending_user.organization_id)
                     db.session.add(new_user)
+                    db.session.delete(pending_user)
                     db.session.commit()
                     do_login(new_user)
                 except IntegrityError:
