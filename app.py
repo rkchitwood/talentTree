@@ -2,10 +2,12 @@ from flask import Flask, session, g, redirect, render_template, flash
 from flask_mail import Mail, Message
 from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Organization
+from models import db, connect_db, User, Organization, PendingUser
 from sqlalchemy.exc import IntegrityError
-from forms import FirstAdminForm
+from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm
 from seed import should_seed, seed_functions, seed_levels
+from security import generate_token, calculate_expiration
+from datetime import datetime
 
 CURR_USER_KEY = "curr_user"
 REGISTER = '/users/new/register'
@@ -19,8 +21,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 app.config['SQLALCHEMY_ECHO'] = True
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_SSL']  = True
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS']  = True
 app.config['MAIL_USERNAME'] = GMAIL_USERNAME
 app.config['MAIL_PASSWORD'] = GMAIL_PASSWORD
 
@@ -42,9 +44,9 @@ def email_registration(email, token):
         sender = GMAIL_USERNAME,
         recipients = [email],
         body=f'''
-        Welcome to talentTree! Please click the following link
-        to complete registration: 
-        {REGISTER}/{token}
+    Welcome to talentTree! Please click the following link within
+24 hours to complete registration: 
+{REGISTER}/{token}
         '''
     )
 
@@ -56,15 +58,15 @@ def email_confirm_registration(email):
         sender = GMAIL_USERNAME,
         recipients = [email],
         body=f'''
-        Welcome to talentTree!
+Welcome to talentTree!
 
-        Thank you for joining talentTree, we hope you enjoy our product.
-        For your records, your username is:
+Thank you for joining talentTree, we hope you enjoy our product.
+For your records, your username is:
 
-        {email}
+{email}
 
-        Thank you again!
-        -the talentTree team
+Thank you again!
+    -the talentTree team
         '''
     )
 
@@ -98,6 +100,29 @@ def home():
         return redirect(f'/organizations/{g.user.organization_id}')
     else:
         return render_template('home.html')
+    
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    '''renders login form and handles submission'''
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.username.data
+        password = form.password.data
+
+        user = User.authenticate(email, password)
+        if user:
+            do_login(user)
+            return redirect(f'/organizations/{user.organization_id}')
+        else:
+            form.username.errors = ['Invalid username/password.']
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    '''logs out user'''
+    do_logout()
+    return redirect('/')
+
 
 @app.route('/register/admin', methods=['GET', 'POST'])
 def register_first_admin():
@@ -106,7 +131,7 @@ def register_first_admin():
     form = FirstAdminForm()
     if form.validate_on_submit():
         try:
-            org = Organization(name=form.name.data)
+            org = Organization(name=form.organization.data)
             db.session.add(org)
             db.session.commit()
         except IntegrityError:
@@ -118,6 +143,8 @@ def register_first_admin():
                 password=form.password.data,
                 organization_id= Organization.query.filter_by(name=form.organization.data).first().id
                 )
+            db.session.add(user)
+            db.session.commit()
         except IntegrityError:
             flash("Username already taken", 'danger')
             return render_template('admin-register.html', form=form)
@@ -131,7 +158,7 @@ def register_first_admin():
 def org_homepage(org_id):
     '''displays an organization's homepage'''
     
-    if g.user and g.user.organization_id == org_id:
+    if g.user.organization_id == org_id:
         #access granted
         org = Organization.query.get_or_404(org_id)
         searches = org.searches
@@ -143,3 +170,61 @@ def org_homepage(org_id):
         #access denied
         flash("Access Unauthorized", 'danger')
         return redirect('/')
+    
+@app.route('/users/add', methods=['GET', 'POST'])
+def invite_users():
+    '''returns a form allowing admin to invite others to their organization'''
+
+    if not g.user or not g.user.is_admin:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    
+    form = InviteUserForm()
+    if form.validate_on_submit():
+        try:
+            email = form.email.data
+            is_admin = form.is_admin.data
+            pending_user = PendingUser(
+                email = email,
+                is_admin = is_admin,
+                organization_id = g.user.organization_id,
+                token = generate_token(),
+                expiration = calculate_expiration()
+            )
+            email_registration(email, pending_user.token)
+            db.session.add(pending_user)
+            db.session.commit()
+            flash(f'Successfully invited {email}')
+            return render_template('invite-user.html', form=form)   
+        except IntegrityError:
+            flash("Username already taken", 'danger')
+            return render_template('invite-user.html', form=form)
+
+@app.route('/users/pending/<token>', methods=['GET', 'POST'])
+def token_registration(token):
+    '''allows a new user to register from an emailed link and handles submission'''
+    pending_user = PendingUser.query.filter_by(token=token).first()
+    if pending_user:
+        current_time = datetime.now()
+
+        if current_time <= pending_user.expiration:
+            form = RegisterUserForm()
+            if form.validate_on_submit():
+                try:
+                    password = form.password.data
+                    new_user = User.register(
+                        email=pending_user.email, 
+                        password=password, 
+                        organization_id=pending_user.organization_id)
+                    db.session.add(new_user)
+                    db.session.commit()
+                    do_login(new_user)
+                except IntegrityError:
+                    flash("Username already taken", 'danger')
+                    return render_template('invite-user.html', form=form)
+                return redirect(f'/organizations/{new_user.organization_id}')
+            return render_template('user-register.html', form=form)
+    flash("Invalid Token")
+    return redirect('/')
+
+

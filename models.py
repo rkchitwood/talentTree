@@ -9,6 +9,7 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
+    db.drop_all()
     db.create_all()
 
 class User(db.Model):
@@ -18,7 +19,7 @@ class User(db.Model):
 
     email = db.Column(db.String(100), nullable = False, primary_key=True)
     password = db.Column(db.String(255), nullable = False)
-    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='cascade'))
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'))
     is_admin = db.Column(db.Boolean, nullable = True, default = False)
 
     organization = db.relationship('Organization', backref='users')
@@ -58,7 +59,7 @@ class PendingUser(db.Model):
     __tablename__ = 'pending_users'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), nullable=False, unique=True)
-    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id'), nullable=False)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=False)
     token = db.Column(db.String(10), nullable=False, unique=True)
     expiration = db.Column(db.DateTime, nullable=False)
     pending_admin = db.Column(db.Boolean, nullable = True, default=False)
@@ -89,17 +90,19 @@ class Profile(db.Model):
     first_name = db.Column(db.String(30), nullable = False)
     last_name = db.Column(db.String(30), nullable = False)
     headline = db.Column(db.String(50), nullable = False)
-    primary_role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
-
-    primary_role = db.relationship('Role', foreign_keys=[primary_role_id], backref='primary_profile', uselist=False)
-    roles = db.relationship('Role', backref='profile', lazy='dynamic')
-    functions = db.relationship('Function', secondary='roles', backref='profiles')
-    companies = db.relationship('Company', secondary='roles', backref='profiles')
-    levels = db.relationship('Level', secondary='roles', backref='profiles')
+    
+    # roles = db.relationship('Role', backref='profile', lazy='dynamic')
+    # functions = db.relationship('Function', secondary='role-functions', backref='profiles')
+    # companies = db.relationship('Company', secondary='roles', backref='profiles')
+    # levels = db.relationship('Level', secondary='roles', backref='profiles')
 
     def __repr__(self):
         return f"<Profile #{self.id}: {self.first_name} {self.last_name}, {self.linkedin_url}>"
 
+    def primary_role(self):
+        '''Returns the primary role of the profile'''
+        return self.roles.filter_by(is_primary=True).first()
+    
 class Role(db.Model):
     '''table for roles - past and present'''
 
@@ -113,7 +116,7 @@ class Role(db.Model):
     end_date = db.Column(db.Date, nullable = True)
     is_primary = db.Column(db.Boolean, default=False)
 
-    functions = db.relationship('Function', secondary='role-function', backref='roles')
+    # functions = db.relationship('Function', secondary='role-functions', backref='roles')
 
     def __repr__(self):
         function_names = ', '.join(f.name for f in self.functions)
@@ -124,7 +127,7 @@ class Role(db.Model):
 class RoleFunction(db.Model):
     '''table tying functions to their roles'''
 
-    __tablename__ = 'role-function'
+    __tablename__ = 'role-functions'
 
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete='SET NULL'), primary_key = True)
     function_id = db.Column(db.Integer, db.ForeignKey('functions.id', ondelete='SET NULL'), primary_key = True)
@@ -140,8 +143,8 @@ class Company(db.Model):
     name = db.Column(db.String(30), nullable = False)
     #api_company_id = db.Column(db.Integer, db.ForeignKey('api_companies.id'), nullable = True)
 
-    profiles = db.relationship('Profile', secondary='roles', backref='companies')
-    roles = db.relationship('Role', backref='company', lazy='dynamic')
+    # profiles = db.relationship('Profile', secondary='roles', backref='companies')
+    # roles = db.relationship('Role', backref='company', lazy='dynamic')
 
     def __repr__(self):
         return f"<Company #{self.id}: {self.name}, {self.domain}>"
@@ -155,7 +158,7 @@ class Level(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False)
 
-    roles = db.relationship('Role', backref='level', lazy='dynamic')
+    #roles = db.relationship('Role', backref='level', lazy='dynamic')
 
 class Function(db.Model):
     '''table for job functions'''
@@ -164,8 +167,6 @@ class Function(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False)
-
-    roles = db.relationship('Role', backref='function', lazy='dynamic')
     
 class Search(db.Model):
     '''table for searches'''
@@ -178,11 +179,11 @@ class Search(db.Model):
     function_id = db.Column(db.Integer, db.ForeignKey('functions.id', ondelete='SET NULL'), nullable=True)
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=True)
 
-    company = db.relationship('Company', backref='searches')
-    level = db.relationship('Level', backref='searches')
-    function = db.relationship('Function', backref='searches')
+    #company = db.relationship('Company', backref='searches')
+    #level = db.relationship('Level', backref='searches')
+    #function = db.relationship('Function', backref='searches')
     organization = db.relationship('Organization', backref='searches')
-    search_profiles = db.relationship('SearchProfile', backref='searches')
+    #search_profiles = db.relationship('SearchProfile', backref='searches')
     
     def __repr__(self):
         return f"<Search #{self.id}: {self.level.name}, {self.function.name} for {self.company.name}>"

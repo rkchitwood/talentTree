@@ -7,7 +7,7 @@ class FirstAdminForm(FlaskForm):
 
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[Length(min=8)])
-    confirm_password = PasswordField('Password', validators=[Length(min=8), EqualTo('create_password', message='Passwords must match')])
+    confirm_password = PasswordField('Confirm Password', validators=[Length(min=8), EqualTo('password', message='Passwords must match')])
     organization = StringField('Organization', validators=[InputRequired()])
 
 class InviteUserForm(FlaskForm):
@@ -21,3 +21,9 @@ class RegisterUserForm(FlaskForm):
 
     create_password = PasswordField('Password', validators=[Length(min=8)])
     confirm_password = PasswordField('Password', validators=[Length(min=8), EqualTo('create_password', message='Passwords must match')])
+
+class LoginForm(FlaskForm):
+    '''defines fields to allow a user to log in'''
+
+    email = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])

@@ -1,7 +1,7 @@
 import secrets, string
 from datetime import datetime, timedelta
 
-TOKEN_LENGTH = 10
+TOKEN_LENGTH = 25
 TOKEN_EXPIRATION = timedelta(hours=24)
 
 def generate_token(length=TOKEN_LENGTH):
