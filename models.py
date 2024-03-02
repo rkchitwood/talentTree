@@ -2,6 +2,7 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from sqlalchemy import and_, UniqueConstraint
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -9,7 +10,7 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
-    # db.drop_all()
+    db.drop_all()
     db.create_all()
 
 class User(db.Model):
@@ -36,12 +37,12 @@ class User(db.Model):
         return cls(email=email, password=hashed_utf8, organization_id=organization_id, is_admin=True)
     
     @classmethod
-    def register(cls, email, password, organization_id):
+    def register(cls, email, password, organization_id, is_admin):
         '''registers a user'''
     
         hashed = bcrypt.generate_password_hash(password)
         hashed_utf8 = hashed.decode("utf8")
-        return cls(email=email, password=hashed_utf8, organization_id=organization_id)
+        return cls(email=email, password=hashed_utf8, organization_id=organization_id, is_admin=is_admin)
     
     @classmethod
     def authenticate(cls, email, password):
@@ -90,7 +91,8 @@ class Profile(db.Model):
     first_name = db.Column(db.String(30), nullable = False)
     last_name = db.Column(db.String(30), nullable = False)
     headline = db.Column(db.String(50), nullable = False)
-    
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=False)
+
     # roles = db.relationship('Role', backref='profile', lazy='dynamic')
     # functions = db.relationship('Function', secondary='role-functions', backref='profiles')
     # companies = db.relationship('Company', secondary='roles', backref='profiles')
@@ -139,11 +141,26 @@ class Company(db.Model):
     __tablename__ = 'companies'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    domain = db.Column(db.String(50), unique=True, nullable = False)
+    domain = db.Column(db.String(50), nullable = False)
     name = db.Column(db.String(30), nullable = False)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=False)
     #api_company_id = db.Column(db.Integer, db.ForeignKey('api_companies.id'), nullable = True)
 
-    # profiles = db.relationship('Profile', secondary='roles', backref='companies')
+    __table_args__ = (
+        UniqueConstraint('domain', 'organization_id'),
+    )
+
+    employees = db.relationship('Profile', 
+                               secondary='roles',
+                               primaryjoin=and_(id == Role.company_id,
+                                                Role.end_date == None), 
+                               backref='current_company')
+    alumni = db.relationship('Profile', 
+                               secondary='roles',
+                               primaryjoin=and_(id == Role.company_id,
+                                                Role.end_date != None), 
+                               backref='alumni_company')
+
     # roles = db.relationship('Role', backref='company', lazy='dynamic')
 
     def __repr__(self):

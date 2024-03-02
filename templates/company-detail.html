@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}talentTree {{ company.name }}{% endblock %}
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+      <h1 class="join-message">{{ company.name }} details</h1><br>
+      <ul><h3>{{ company.name }} Employees:</h3>
+        {% if employees %}
+        {% for e in employees %}
+        <li>{{ e.first_name }}{{ e.last_name }} - {{ e.headline }}</li>
+        {% endfor %}  
+        {% else %}
+            <li>No employees yet!</li>
+        {% endif %}  
+    </ul>
+    <ul><h2>{{ company.name }} Alumni:</h2>
+        {% if alumni %}
+            {% for a in alumni %}
+            <li>{{ a.first_name }}{{ a.last_name }} - {{ a.headline }}</li>
+            {% endfor %}
+        {% else %}
+            <li>No alumni yet!</li>
+        {% endif %}
+    </ul>
+    </div>
+  </div>
+{% endblock %}

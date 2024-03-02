@@ -1,13 +1,14 @@
-from flask import Flask, session, g, redirect, render_template, flash
+from flask import Flask, session, g, redirect, render_template, flash, jsonify, request
 from flask_mail import Mail, Message
 from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Organization, PendingUser
+from models import db, connect_db, User, Organization, PendingUser, Company
 from sqlalchemy.exc import IntegrityError
-from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm
+from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm
 from seed import should_seed, seed_functions, seed_levels
 from security import generate_token, calculate_expiration
 from datetime import datetime
+from sqlalchemy import or_
 
 CURR_USER_KEY = "curr_user"
 
@@ -120,6 +121,7 @@ def login():
 def logout():
     '''logs out user'''
     do_logout()
+    flash("Successfully logged out", 'success')
     return redirect('/')
 
 
@@ -211,6 +213,11 @@ def token_registration(token):
     '''allows a new user to register from an emailed link and handles submission'''
     pending_user = PendingUser.query.filter_by(token=token).first()
     if pending_user:
+        is_admin = pending_user.pending_admin
+        org_id = pending_user.organization_id
+        email = pending_user.email
+        db.session.delete(pending_user)
+        db.session.commit()
         current_time = datetime.now()
 
         if current_time <= pending_user.expiration:
@@ -219,11 +226,12 @@ def token_registration(token):
                 try:
                     password = form.password.data
                     new_user = User.register(
-                        email=pending_user.email, 
-                        password=password, 
-                        organization_id=pending_user.organization_id)
+                        email =email, 
+                        password = password, 
+                        organization_id = org_id, 
+                        is_admin = is_admin)
                     db.session.add(new_user)
-                    db.session.delete(pending_user)
+                    #db.session.delete(pending_user)
                     db.session.commit()
                     do_login(new_user)
                 except IntegrityError:
@@ -234,4 +242,53 @@ def token_registration(token):
     flash("Invalid Token")
     return redirect('/')
 
+@app.route('/companies', methods=['GET', 'POST'])
+def show_and_handle_profile_form():
+    '''renders form to create new company and redirects to company on creation'''
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    form = CompanyForm()
+    if form.validate_on_submit():
+        try:
+            name = form.name.data
+            domain = form.domain.data
+            new_co = Company(name=name, domain=domain, organization_id=g.user.organization_id)
+            db.session.add(new_co)
+            db.session.commit()
+            return redirect(f'/companies/{new_co.id}')
 
+        except IntegrityError:
+                db.session.rollback()
+                flash("Domain name already exists", 'danger')
+                return render_template('company-form.html', form=form)
+    return render_template('company-form.html', form=form)
+
+@app.route('/companies/<int:co_id>')
+def show_company(co_id):
+    '''shows company details'''
+    co = Company.query.get_or_404(co_id)
+    if not g.user or g.user.organization_id != co.organization_id:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    else:
+        employees = co.employees
+        alumni = co.alumni
+        return render_template('company-detail.html', company = co, employees=employees, alumni=alumni)
+
+###############################################################################    
+#use JS to get companies from db by name or domain while typing in profile form
+    
+# @app.route('/profiles')
+# def show_and_handle_profile_form():
+#     '''renders form to create new profile and redirects to profile on creation'''
+
+
+@app.route('/api/companies/search')
+def company_search():
+    '''searches for companies by name and domain name and returns via JSON'''
+
+    search_term = request.args.get('q')
+    search_results = Company.query.filter(or_(Company.name.ilike(f'%{search_term}%'), Company.domain.ilike(f'%{search_term}'))).limit(5).all()
+    response = [(company.name, company.domain) for company in search_results]
+    return jsonify(response)
