@@ -1,6 +1,17 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, BooleanField, SelectField
-from wtforms.validators import InputRequired, Optional, URL, NumberRange, Email, DataRequired, Length, EqualTo
+from wtforms import StringField, PasswordField, DateField, BooleanField, SelectField, SelectMultipleField
+from wtforms.validators import InputRequired, Optional, URL, Email, DataRequired, Length, EqualTo, ValidationError
+
+def validate_functions(form, field):
+    if not field.data:
+        raise ValidationError('At least one function must be selected.')
+    
+def validate_end_date(form, field):
+    is_current = form.is_current.data
+    end_date = field.data
+    if is_current:
+        if not end_date:
+            raise ValidationError('End date required for current roles')
 
 class FirstAdminForm(FlaskForm):
     '''defines fields to allow creation of 1st admin and their organization'''
@@ -37,4 +48,50 @@ class CompanyForm(FlaskForm):
 class ProfileForm(FlaskForm):
     '''defines fields to create or edit a profile'''
 
-    #li url, fname, lname, comp-id(domain name unique)
+    #profile fields
+
+    first_name = StringField('First Name', validators=[InputRequired()])
+    last_name = StringField('Last Name', validators=[InputRequired()])
+    linkedin_url = StringField('LinkedIn URL', validators=[InputRequired(), URL()])    
+    headline = StringField('Headline', validators=[Optional()])
+
+    #role fields
+
+    function_choices = [('Executive', 'Executive'), 
+                    ('Finance', 'Finance'), 
+                    ('Operations', 'Operations'), 
+                    ('Engineering', 'Engineering'), 
+                    ('Product','Product'), 
+                    ('Sales', 'Sales'), 
+                    ('Security', 'Security'), 
+                    ('Marketing', 'Marketing'), 
+                    ('Human Resources', 'Human Resources'), 
+                    ('Customer Services', 'Customer Services'),
+                    ('Founder', 'Founder')
+                    ]
+    level_choices = [('Chief', 'Chief'), 
+                ('President', 'President'), 
+                ('Executive Vice President', 'Executive Vice President'), 
+                ('Senior Vice President', 'Senior Vice President'),
+                ('Vice President', 'Vice President'),
+                ('Associate Vice President', 'Associate Vice President'),
+                ('Head', 'Head'),
+                ('Partner', 'Partner'),
+                ('Senior Director', 'Senior Director'),
+                ('Director', 'Director'),
+                ('Associate Director', 'Associate Director'),
+                ('Senior Manager', 'Senior Manager'),
+                ('Manager', 'Manager'),
+                ('Senior Associate', 'Senior Associate'),
+                ('Associate', 'Associate'),
+                ('Senior Analyst', 'Senior Analyst'),
+                ('Junior', 'Junior')
+                ]
+    
+    level = SelectMultipleField('Level', choices=level_choices, validators=[InputRequired()])
+    functions = SelectMultipleField('Functions', choices=function_choices, validators=[validate_functions])
+    company = StringField('Company Domain or Name', validators=[URL(), InputRequired()])
+    start_date = DateField('Start Date', validators=[InputRequired()])
+    is_current = BooleanField('Current Role', default=False, validators=[validate_end_date])
+    end_date = DateField('End Date', validators=[Optional()])
+    is_primary = BooleanField('Primary Role', validators=[Optional()])

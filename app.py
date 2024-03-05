@@ -2,9 +2,9 @@ from flask import Flask, session, g, redirect, render_template, flash, jsonify, 
 from flask_mail import Mail, Message
 from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Organization, PendingUser, Company
+from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction
 from sqlalchemy.exc import IntegrityError
-from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm
+from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm, ProfileForm
 from seed import should_seed, seed_functions, seed_levels
 from security import generate_token, calculate_expiration
 from datetime import datetime
@@ -243,7 +243,7 @@ def token_registration(token):
     return redirect('/')
 
 @app.route('/companies', methods=['GET', 'POST'])
-def show_and_handle_profile_form():
+def show_and_handle_company_form():
     '''renders form to create new company and redirects to company on creation'''
     if not g.user:
         flash("Access Unauthorized", 'danger')
@@ -279,16 +279,70 @@ def show_company(co_id):
 ###############################################################################    
 #use JS to get companies from db by name or domain while typing in profile form
     
-# @app.route('/profiles')
-# def show_and_handle_profile_form():
-#     '''renders form to create new profile and redirects to profile on creation'''
-
+@app.route('/profiles', methods=['GET', 'POST'])
+def show_and_handle_profile_form():
+    '''renders form to create new profile and redirects to profile on creation'''
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    form = ProfileForm()
+    if form.validate_on_submit():
+        try:
+            new_profile = Profile(
+                first_name = form.first_name.data,
+                last_name = form.last_name.data,
+                linkedin_url = form.linkedin_url.data,
+                headline = form.headline.data,
+                organization_id = g.user.organization_id
+            )
+            db.session.add(new_profile)
+            db.session.commit()
+        except IntegrityError:
+                db.session.rollback()
+                flash("Profile already exists", 'danger')
+                return render_template('profile-form.html', form=form)
+        try:
+            new_role = Role(
+                company_id = Company.query.filter_by(domain=form.company.data).first().id,
+                level_id = Level.query.filter_by(name=form.level.data).first().id,
+                profile_id = new_profile.id,
+                start_date = form.start_date.data,
+                end_date = form.end_date.data,
+                is_primary = form.is_primary.data
+            )
+            db.session.add(new_role)
+            db.session.commit()
+            functions = form.functions.data
+            for f in functions:
+                function_id = Function.query.filter_by(name=f).first().id
+                role_function = RoleFunction(
+                    role_id = new_role.id,
+                    function_id = function_id
+                    )
+                db.session.add(role_function)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash("Problem creating role or functions", 'danger')
+            return render_template('profile-form.html', form=form)
+        return redirect(f'/profiles/{new_profile.id}')
+    else:
+        return render_template('profile-form.html', form=form)
+            
 
 @app.route('/api/companies/search')
 def company_search():
     '''searches for companies by name and domain name and returns via JSON'''
 
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+
     search_term = request.args.get('q')
-    search_results = Company.query.filter(or_(Company.name.ilike(f'%{search_term}%'), Company.domain.ilike(f'%{search_term}'))).limit(5).all()
+    search_results = Company.query.filter(
+        (Company.organization_id == g.user.organization_id) &
+        (or_(Company.name.ilike(f'%{search_term}'), Company.domain.ilike(f'%{search_term}%')))
+    ).all()
+
     response = [(company.name, company.domain) for company in search_results]
     return jsonify(response)

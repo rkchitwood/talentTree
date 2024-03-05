@@ -92,6 +92,9 @@ class Profile(db.Model):
     last_name = db.Column(db.String(30), nullable = False)
     headline = db.Column(db.String(50), nullable = False)
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=False)
+    __table_args__ = (
+        UniqueConstraint('linkedin_url', 'organization_id'),
+    )
 
     # roles = db.relationship('Role', backref='profile', lazy='dynamic')
     # functions = db.relationship('Function', secondary='role-functions', backref='profiles')
@@ -118,7 +121,7 @@ class Role(db.Model):
     end_date = db.Column(db.Date, nullable = True)
     is_primary = db.Column(db.Boolean, default=False)
 
-    # functions = db.relationship('Function', secondary='role-functions', backref='roles')
+    #functions = db.relationship('Function', secondary='role-functions', backref='roles')
 
     def __repr__(self):
         function_names = ', '.join(f.name for f in self.functions)

@@ -13,28 +13,35 @@ def seed_functions():
         Function(name='Security'),
         Function(name='Marketing'),
         Function(name='Human Resources'),
-        Function(name='Customer Services')
+        Function(name='Customer Services'),
+        Function(name='Founder')
     ]
     db.session.add_all(functions)
     db.session.commit()
-    
 
 def seed_levels():
     '''creates predefined levels'''
-
-    functions = [
+    
+    levels = [
         Level(name='Chief'),
         Level(name='President'),
         Level(name='Executive Vice President'),
         Level(name='Senior Vice President'),
         Level(name='Vice President'),
+        Level(name='Associate Vice President'),
+        Level(name='Head'),
+        Level(name='Partner'),
+        Level(name='Senior Director'),
         Level(name='Director'),
+        Level(name='Associate Director'),
+        Level(name='Senior Manager'),
         Level(name='Manager'),
+        Level(name='Senior Associate'),
         Level(name='Associate'),
-        Level(name='Analyst'),
-        Level(name='Junior') 
+        Level(name='Senior Analyst'),
+        Level(name='Junior')
     ]
-    db.session.add_all(functions)
+    db.session.add_all(levels)
     db.session.commit()
 
 def should_seed():
