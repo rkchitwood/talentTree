@@ -3,18 +3,62 @@
 {% block content %}
 <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
-      <h2 class="join-message">create profile</h2>
-      <form method="POST" id="profile-form">
-        {{ form.hidden_tag() }}
-  
-        {% for field in form if field.widget.input_type != 'hidden' %}
-          {% for error in field.errors %}
-            <span class="text-danger">{{ error }}</span>
-          {% endfor %}
-          {{ field(placeholder=field.label.text, class="form-control") }}
-        {% endfor %}
-  
-        <button class="btn btn-primary btn-lg btn-block">Register</button>
+      <h2 class="join-message">add a contact</h2>
+      <form method="POST" id="user-form">
+        {{ form.hidden_tag() }} 
+        {% for field in form if field.widget.input_type != 'hidden' %}     
+            {% for error in field.errors %}
+              <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+            {% if field.type == 'BooleanField' %}
+                <div class="form-check">
+                    {{ field(class="form-check-input") }}
+                    <label class="form-check-label">{{ field.label.text }}</label>
+                </div>
+            {% elif field.type == 'SelectField' %}
+                
+            <div class="form-control"><label>{{ field.label.text }}</label>
+                <div class="row">
+                    {% for choice, label in field.choices %}
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="{{ field.id }}_{{ loop.index }}" name="{{ field.name }}" value="{{ choice }}">
+                                <label class="form-check-label" for="{{ field.id }}_{{ loop.index }}">{{ label }}</label>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+                    </select>
+            {% elif field.type == 'SelectMultipleField' %}
+            
+                <div class="form-control"><label>{{ field.label.text }}</label>
+                    <div class="row">
+                        {% for choice, label in field.choices %}
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="{{ field.id }}_{{ loop.index }}" name="{{ field.name }}" value="{{ choice }}">
+                                    <label class="form-check-label" for="{{ field.id }}_{{ loop.index }}">{{ label }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% elif field.type == 'DateField' %}
+            <div class="form-control">
+                <div class="form-group row">
+                    <label class="col-md-7 col-form-label">{{ field.label.text }}</label>
+                    <div class="col-md-5">
+                        {{ field(class="form-control") }}
+                    </div>
+                </div>
+            </div>
+                
+            {% else %}
+                {{ field(placeholder=field.label.text, class="form-control") }}  
+            {% endif %}       
+        {% endfor %} 
+        <button class="btn btn-primary btn-lg btn-block">add</button>
       </form>
     </div>
   </div>

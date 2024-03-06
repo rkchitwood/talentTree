@@ -10,7 +10,7 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
-    db.drop_all()
+    #db.drop_all()
     db.create_all()
 
 class User(db.Model):

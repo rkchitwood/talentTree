@@ -6,3 +6,7 @@ a {
 a:hover{
     text-decoration: underline
 }
+input.form-control:focus {
+    outline: 1px solid blue;
+    box-shadow: none;
+}

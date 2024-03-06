@@ -3,7 +3,7 @@ from wtforms import StringField, PasswordField, DateField, BooleanField, SelectF
 from wtforms.validators import InputRequired, Optional, URL, Email, DataRequired, Length, EqualTo, ValidationError
 
 def validate_functions(form, field):
-    if not field.data:
+    if not field.data or len(field.data) == 0:
         raise ValidationError('At least one function must be selected.')
     
 def validate_end_date(form, field):
@@ -53,7 +53,7 @@ class ProfileForm(FlaskForm):
     first_name = StringField('First Name', validators=[InputRequired()])
     last_name = StringField('Last Name', validators=[InputRequired()])
     linkedin_url = StringField('LinkedIn URL', validators=[InputRequired(), URL()])    
-    headline = StringField('Headline', validators=[Optional()])
+    headline = StringField('Headline (Optional)', validators=[Optional()])
 
     #role fields
 
@@ -88,10 +88,7 @@ class ProfileForm(FlaskForm):
                 ('Junior', 'Junior')
                 ]
     
-    level = SelectMultipleField('Level', choices=level_choices, validators=[InputRequired()])
-    functions = SelectMultipleField('Functions', choices=function_choices, validators=[validate_functions])
-    company = StringField('Company Domain or Name', validators=[URL(), InputRequired()])
-    start_date = DateField('Start Date', validators=[InputRequired()])
-    is_current = BooleanField('Current Role', default=False, validators=[validate_end_date])
-    end_date = DateField('End Date', validators=[Optional()])
-    is_primary = BooleanField('Primary Role', validators=[Optional()])
+    level = SelectField('Primary Level', choices=level_choices, validators=[InputRequired()])
+    functions = SelectMultipleField('Primary Functions', choices=function_choices, validators=[validate_functions])
+    company = StringField('Primary Company Domain', validators=[URL(), InputRequired()])
+    start_date = DateField('Primary Start Date', validators=[InputRequired()])

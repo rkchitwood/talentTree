@@ -288,6 +288,16 @@ def show_and_handle_profile_form():
     form = ProfileForm()
     if form.validate_on_submit():
         try:
+            #make sure company domain in companies.domain w/ org_id
+            #make this form primary only, enddate none
+            #create headline from roles
+            valid_domain = Company.query.filter(
+                (Company.domain == form.company.data) &
+                (Company.organization_id == g.user.organization_id)
+            ).first()
+            if not valid_domain:
+                form.company.errors.append('No company exists')
+                return render_template('profile-form.html', form=form)
             new_profile = Profile(
                 first_name = form.first_name.data,
                 last_name = form.last_name.data,
@@ -307,8 +317,8 @@ def show_and_handle_profile_form():
                 level_id = Level.query.filter_by(name=form.level.data).first().id,
                 profile_id = new_profile.id,
                 start_date = form.start_date.data,
-                end_date = form.end_date.data,
-                is_primary = form.is_primary.data
+                end_date = None,
+                is_primary = True
             )
             db.session.add(new_role)
             db.session.commit()
