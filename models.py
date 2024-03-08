@@ -166,13 +166,31 @@ class Level(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False)
 
-# class Map(db.Model):
-#     '''table for contact maps'''
+class Map(db.Model):
+    '''table for contact maps'''
 
-#     __tablename__ = 'maps'
+    __tablename__ = 'maps'
 
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     name = db.Column(db.String(50), nullable = False)
-#     level = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL', nullable=False))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50), nullable = False)
+    level = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL', nullable=False))
 
-#     #map-companies and map-levels
+    functions = db.relationship('Function', secondary='function_map')
+    companies = db.relationship('Company', secondary='company_map')
+
+class FunctionMap(db.Model):
+    '''table tying functions to contact maps'''
+
+    __tablename__ = 'function_map'
+
+    function_id = db.Column(db.Integer, db.ForeignKey('functions.id', ondelete='SET NULL'), primary_key = True)
+    map_id = db.Column(db.Integer, db.ForeignKey('maps.id', ondelete='SET NULL'), primary_key = True)
+    
+
+class CompanyMap(db.Model):
+    '''table tying companies to contact maps'''
+
+    __tablename__ = 'company_map'
+
+    company_id = db.Column(db.Integer, db.ForeignKey('companies.id', ondelete='SET NULL'), primary_key = True)
+    map_id = db.Column(db.Integer, db.ForeignKey('maps.id', ondelete='SET NULL'), primary_key = True)
