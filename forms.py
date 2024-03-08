@@ -90,5 +90,5 @@ class ProfileForm(FlaskForm):
     
     level = SelectField('Primary Level', choices=level_choices, validators=[InputRequired()])
     functions = SelectMultipleField('Primary Functions', choices=function_choices, validators=[validate_functions])
-    company = StringField('Primary Company Domain', validators=[URL(), InputRequired()])
     start_date = DateField('Primary Start Date', validators=[InputRequired()])
+    company = StringField('Primary Company Domain', validators=[URL(), InputRequired()])

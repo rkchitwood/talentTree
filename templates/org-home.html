@@ -1,18 +1,40 @@
 {% extends 'base.html' %}
 {% block title %}talentTree - {{ org.name }}{% endblock %}
 {% block content %}
-<ul><h2>{{ org.name }} Users:</h2>
-    {% for u in users %}
-    <li>{{ u.email }}{% if u.is_admin %} - Admin{% endif %}</li>
-    {% endfor %}    
-</ul>
-<ul><h2>{{ org.name }} Searches:</h2>
-    {% if searches %}
-        {% for s in searches %}
-        <li>{{ s.level.name }}, {{ s.function.name }} for {{ s.company.name }}</li>
-        {% endfor %}
-    {% else %}
-        <li>No searches yet!</li>
-    {% endif %}
-</ul>
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+        <h2>{{ org.name }} Users:</h2>
+            {% for u in users %}
+            <ul class="list-group list-group-horizontal-lg">
+                <li class="list-group-item" style="width: 50%;">{{ u.email }}</li>
+                {% if u.is_admin %}
+                <li class="list-group-item" style="width: 50%;">Admin</li>
+                {% endif %}
+            </ul>            
+            {% endfor %}    
+        <h2>{{ org.name }} Contacts:</h2>
+            {% if profiles %}
+                {% for p in profiles %}
+                    <ul class="list-group list-group-horizontal-lg">
+                        <li class="list-group-item" style="width: 50%;"><a href="/profiles/{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</a></li>
+                        <li class="list-group-item" style="width: 50%;">{{ p.headline }}</li>
+                    </ul>
+                {% endfor %}
+            {% else %}
+                <li>No Profiles yet!</li>
+            {% endif %}
+            <h2>{{ org.name }} Companies:</h2>
+            {% if companies %}
+                {% for c in companies %}
+                <ul class="list-group list-group-horizontal-lg">
+                    <li class="list-group-item" style="width: 50%;"><a href="/companies/{{ c.id }}">{{ c.name }}</a></li>
+                    <li class="list-group-item" style="width: 50%;"><a href="{{ c.domain }}">{{ c.domain }}</a></li>
+                </ul>
+                {% endfor %}
+            {% else %}
+                <li>No companies yet!</li>
+            {% endif %}
+        
+    </div>
+</div>
 {% endblock %}

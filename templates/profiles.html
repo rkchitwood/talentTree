@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}talentTree - {{ org.name }}{% endblock %}
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+        <h2>{{ org.name }} Profiles:</h2><br>
+            <a href="/profiles/new"><button class="btn btn-primary btn-lg btn-block">create profile</button></a><br>
+            {% if profiles %}
+                {% for p in profiles %}
+                <ul class="list-group list-group-horizontal-lg">
+                    <li class="list-group-item" style="width: 50%;"><a href="/profiles/{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</a></li>
+                    <li class="list-group-item" style="width: 50%;">{{ p.headline }}</li>
+
+                </ul>
+                {% endfor %}
+            {% else %}
+                <li>No companies yet!</li>
+            {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

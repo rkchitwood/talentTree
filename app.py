@@ -162,9 +162,10 @@ def org_homepage(org_id):
     if g.user.organization_id == org_id:
         #access granted
         org = Organization.query.get_or_404(org_id)
-        searches = org.searches
         users = org.users
-        return render_template('org-home.html', org=org, searches=searches, users=users)
+        companies = Company.query.filter_by(organization_id=g.user.organization_id).all()
+        profiles = Profile.query.filter_by(organization_id=g.user.organization_id).all()
+        return render_template('org-home.html', org=org, companies=companies, profiles=profiles, users=users)
 
 
     else:
@@ -242,7 +243,7 @@ def token_registration(token):
     flash("Invalid Token")
     return redirect('/')
 
-@app.route('/companies', methods=['GET', 'POST'])
+@app.route('/companies/new', methods=['GET', 'POST'])
 def show_and_handle_company_form():
     '''renders form to create new company and redirects to company on creation'''
     if not g.user:
@@ -276,10 +277,17 @@ def show_company(co_id):
         alumni = co.alumni
         return render_template('company-detail.html', company = co, employees=employees, alumni=alumni)
 
-###############################################################################    
-#use JS to get companies from db by name or domain while typing in profile form
-    
-@app.route('/profiles', methods=['GET', 'POST'])
+@app.route('/companies')
+def list_companies():
+    '''shows an org's list of companies'''
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    companies = Company.query.filter_by(organization_id=g.user.organization_id).all()
+    org = Organization.query.get_or_404(g.user.organization_id)
+    return render_template('companies.html', companies=companies, org=org)
+
+@app.route('/profiles/new', methods=['GET', 'POST'])
 def show_and_handle_profile_form():
     '''renders form to create new profile and redirects to profile on creation'''
     if not g.user:
@@ -339,6 +347,24 @@ def show_and_handle_profile_form():
     else:
         return render_template('profile-form.html', form=form)
             
+@app.route('/profiles')
+def list_profiles():
+    '''lists all profiles in an organization'''
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    profiles = Profile.query.filter_by(organization_id=g.user.organization_id)
+    org = Organization.query.get_or_404(g.user.organization_id)
+    return render_template('profiles.html', profiles=profiles, org=org)
+
+@app.route('/profiles/<int:profile_id>')
+def show_profile(profile_id):
+    profile = Profile.query.get_or_404(profile_id)
+    if not g.user or g.user.organization_id != profile.organization_id:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    return render_template('profile.html', profile=profile)
+    #some profile detail. Show roles with primary role first
 
 @app.route('/api/companies/search')
 def company_search():
@@ -354,5 +380,5 @@ def company_search():
         (or_(Company.name.ilike(f'%{search_term}'), Company.domain.ilike(f'%{search_term}%')))
     ).all()
 
-    response = [(company.name, company.domain) for company in search_results]
+    response = [company.domain for company in search_results]
     return jsonify(response)

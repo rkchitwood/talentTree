@@ -8,7 +8,6 @@
     <link rel="stylesheet"
         href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
     <script src="https://unpkg.com/jquery"></script>
-    <script src="https://unpkg.com/popper"></script>
     <script src="https://unpkg.com/bootstrap"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
@@ -30,6 +29,7 @@
                 {% if g.user.is_admin %}
                 <li class="nav-item nav-link"><a href='/invite'>Invite</a></li>
                 {% endif %}
+            <li class="nav-item nav-link"><a href='/profiles'>Profiles</a></li>
             <li class="nav-item nav-link"><a href='/companies'>Companies</a></li>
             <li class="nav-item nav-link"><a href='/organizations/{{ g.user.organization_id }}'>{{ g.user.email }}</a></li>
             <li class="nav-item nav-link"><a href="/logout">Logout</a></li>

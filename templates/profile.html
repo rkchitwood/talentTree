@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}talentTree - {{ profile.first_name }} {{ profile.last_name}}{% endblock %}
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+        <h2>{{ profile.first_name }} {{ profile.last_name}}</h2>
+        <h3>{{ profile.headline }}</h3>
+            {% for r in roles %}
+            <!-- <ul class="list-group list-group-horizontal-lg">
+                <li class="list-group-item" style="width: 50%;">{{ r.level }}</li>
+                <li class="list-group-item" style="width: 50%;">{{ r.functions }}</li>
+                <li class="list-group-item" style="width: 50%;">{{ r.company }}</li>
+            </ul>             -->
+            {% endfor %}    
+{% endblock %}
