@@ -2,7 +2,7 @@ from flask import Flask, session, g, redirect, render_template, flash, jsonify, 
 from flask_mail import Mail, Message
 from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction
+from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction, Map
 from sqlalchemy.exc import IntegrityError
 from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm, ProfileForm
 from seed import should_seed, seed_functions, seed_levels
@@ -158,20 +158,17 @@ def register_first_admin():
 @app.route('/organizations/<int:org_id>')
 def org_homepage(org_id):
     '''displays an organization's homepage'''
-    
-    if g.user.organization_id == org_id:
-        #access granted
+
+    if not g.user or g.user.organization_id != org_id:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')    
+        
+    else:
         org = Organization.query.get_or_404(org_id)
         users = org.users
         companies = Company.query.filter_by(organization_id=g.user.organization_id).all()
         profiles = Profile.query.filter_by(organization_id=g.user.organization_id).all()
-        return render_template('org-home.html', org=org, companies=companies, profiles=profiles, users=users)
-
-
-    else:
-        #access denied
-        flash("Access Unauthorized", 'danger')
-        return redirect('/')
+        return render_template('org-home.html', org=org, companies=companies, profiles=profiles, users=users)        
     
 @app.route('/invite', methods=['GET', 'POST'])
 def invite_users():
@@ -382,3 +379,13 @@ def company_search():
 
     response = [company.domain for company in search_results]
     return jsonify(response)
+
+@app.route('/maps')
+def list_maps():
+    '''lists all maps in an organization'''
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    maps = Map.query.filter_by(organization_id=g.user.organization_id)
+    org = g.user.organization
+    return render_template('maps.html', maps=maps, org=org)

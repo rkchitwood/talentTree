@@ -173,7 +173,8 @@ class Map(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False)
-    level = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL', nullable=False))
+    level = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL'))
+    organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'))
 
     functions = db.relationship('Function', secondary='function_map')
     companies = db.relationship('Company', secondary='company_map')

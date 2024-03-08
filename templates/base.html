@@ -10,6 +10,8 @@
     <script src="https://unpkg.com/jquery"></script>
     <script src="https://unpkg.com/bootstrap"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand">
@@ -29,6 +31,7 @@
                 {% if g.user.is_admin %}
                 <li class="nav-item nav-link"><a href='/invite'>Invite</a></li>
                 {% endif %}
+            <li class="nav-item nav-link"><a href='/maps'>Maps</a></li>
             <li class="nav-item nav-link"><a href='/profiles'>Profiles</a></li>
             <li class="nav-item nav-link"><a href='/companies'>Companies</a></li>
             <li class="nav-item nav-link"><a href='/organizations/{{ g.user.organization_id }}'>{{ g.user.email }}</a></li>

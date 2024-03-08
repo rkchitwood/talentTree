@@ -92,3 +92,43 @@ class ProfileForm(FlaskForm):
     functions = SelectMultipleField('Primary Functions', choices=function_choices, validators=[validate_functions])
     start_date = DateField('Primary Start Date', validators=[InputRequired()])
     company = StringField('Primary Company Domain', validators=[URL(), InputRequired()])
+
+class MapForm(FlaskForm):
+    '''defines fields to create or edit a contact map'''
+#name, level, functions, companies
+    
+    level_choices = [('Chief', 'Chief'), 
+            ('President', 'President'), 
+            ('Executive Vice President', 'Executive Vice President'), 
+            ('Senior Vice President', 'Senior Vice President'),
+            ('Vice President', 'Vice President'),
+            ('Associate Vice President', 'Associate Vice President'),
+            ('Head', 'Head'),
+            ('Partner', 'Partner'),
+            ('Senior Director', 'Senior Director'),
+            ('Director', 'Director'),
+            ('Associate Director', 'Associate Director'),
+            ('Senior Manager', 'Senior Manager'),
+            ('Manager', 'Manager'),
+            ('Senior Associate', 'Senior Associate'),
+            ('Associate', 'Associate'),
+            ('Senior Analyst', 'Senior Analyst'),
+            ('Junior', 'Junior')
+            ]
+    function_choices = [('Executive', 'Executive'), 
+                ('Finance', 'Finance'), 
+                ('Operations', 'Operations'), 
+                ('Engineering', 'Engineering'), 
+                ('Product','Product'), 
+                ('Sales', 'Sales'), 
+                ('Security', 'Security'), 
+                ('Marketing', 'Marketing'), 
+                ('Human Resources', 'Human Resources'), 
+                ('Customer Services', 'Customer Services'),
+                ('Founder', 'Founder')
+                ]
+
+    name = StringField('Contact Map Name', validators=[InputRequired()])
+    level = SelectField('Level', choices=level_choices, validators=[InputRequired()])
+    functions = SelectMultipleField('Functions', choices=function_choices, validators=[validate_functions])
+    companies = StringField('Company Domains', validators=[URL(), InputRequired()])
