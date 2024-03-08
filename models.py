@@ -8,7 +8,7 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
-    #db.drop_all()
+    db.drop_all()
     db.create_all()
 
 class User(db.Model):
@@ -96,15 +96,23 @@ class Profile(db.Model):
     def primary_role(self):
         '''Returns the primary role of the profile'''
         return Role.query.filter_by(profile_id=self.id, is_primary=True).first()
+
+class Function(db.Model):
+    '''table for job functions'''
+
+    __tablename__ = 'functions'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50), nullable = False)
         
 class RoleFunction(db.Model):
     '''table tying functions to their roles'''
 
-    __tablename__ = 'role-functions'
+    __tablename__ = 'role_function'
 
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id', ondelete='SET NULL'), primary_key = True)
     function_id = db.Column(db.Integer, db.ForeignKey('functions.id', ondelete='SET NULL'), primary_key = True)
-    
+
 class Role(db.Model):
     '''table for roles - past and present'''
 
@@ -117,6 +125,11 @@ class Role(db.Model):
     start_date = db.Column(db.Date, nullable = False)
     end_date = db.Column(db.Date, nullable = True)
     is_primary = db.Column(db.Boolean, default=False)
+
+    level = db.relationship('Level')
+    profile = db.relationship('Profile')
+    company = db.relationship('Company')
+    functions = db.relationship('Function', secondary='role_function')
 
 class Company(db.Model):
     '''table for companies'''
@@ -153,10 +166,13 @@ class Level(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False)
 
-class Function(db.Model):
-    '''table for job functions'''
+# class Map(db.Model):
+#     '''table for contact maps'''
 
-    __tablename__ = 'functions'
+#     __tablename__ = 'maps'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50), nullable = False)
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     name = db.Column(db.String(50), nullable = False)
+#     level = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL', nullable=False))
+
+#     #map-companies and map-levels

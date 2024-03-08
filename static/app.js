@@ -52,13 +52,13 @@ $(document).ready(function(){
 )
 
 $(document).ready(function() {
-    $(document).on('mouseenter', '.list-group-item', function(){
+    $('#profile-form').on('mouseenter', '.list-group-item', function(){
         $(this).removeClass('list-group-item-info').addClass('list-group-item-primary');
     });
-    $(document).on('mouseleave', '.list-group-item', function(){
+    $('#profile-form').on('mouseleave', '.list-group-item', function(){
         $(this).removeClass('list-group-item-primary').addClass('list-group-item-info');
     });
-    $(document).on('click', '.list-group-item', function(){
+    $('#profile-form').on('click', '.list-group-item', function(){
         if(!$(this).text().includes("No companies found")){
             $('#company').val($(this).text());
             $('#profile-button').prop('disabled', false).show();

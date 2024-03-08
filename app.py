@@ -232,7 +232,6 @@ def token_registration(token):
                         organization_id = org_id, 
                         is_admin = is_admin)
                     db.session.add(new_user)
-                    #db.session.delete(pending_user)
                     db.session.commit()
                     do_login(new_user)
                 except IntegrityError:
@@ -363,8 +362,9 @@ def show_profile(profile_id):
     if not g.user or g.user.organization_id != profile.organization_id:
         flash("Access Unauthorized", 'danger')
         return redirect('/')
-    return render_template('profile.html', profile=profile)
-    #some profile detail. Show roles with primary role first
+    primary_role = profile.primary_role()
+    functions = primary_role.functions
+    return render_template('profile.html', profile=profile, primary_role=primary_role, functions=functions)
 
 @app.route('/api/companies/search')
 def company_search():
