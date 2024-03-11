@@ -420,4 +420,11 @@ def show_and_handle_map_form():
 @app.route('/maps/<int:map_id')
 def show_map(map_id):
     '''displays a map of companies and their selected roles'''
-    return render_template('map.html')
+    map = Map.query.get_or_404(map_id)
+    if not g.user or map.organization_id != g.user.organization_id:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    
+    headers = map.generate_map_headers()
+    rows = map.generate_map_rows()
+    return render_template('map.html', headers=headers, rows=rows)

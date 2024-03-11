@@ -178,6 +178,30 @@ class Map(db.Model):
 
     functions = db.relationship('Function', secondary='function_map')
     companies = db.relationship('Company', secondary='company_map')
+    level = db.relationship('Level')
+
+    def generate_map_headers(self):
+        '''returns the table headers for a contact map'''
+        return [f'{f.name} {self.level.name}' for f in self.functions]
+    
+    def generate_map_rows(self):
+        '''returns rows for a map'''
+        table = []
+        for co in self.companies:
+            row = [co.name]
+            for function in self.functions:
+                role = Role.query.filter(
+                    Role.company_id == co.id,
+                    Role.level_id == self.level_id,
+                    Role.functions.any(Function.id == function.id),
+                    Role.end_date == None
+                ).first()
+                if role:                                     
+                    row.append(role.profile)
+                else:
+                    row.append(None)   
+            table.append(row)
+        return table
 
 class FunctionMap(db.Model):
     '''table tying functions to contact maps'''
