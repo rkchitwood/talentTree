@@ -131,4 +131,4 @@ class MapForm(FlaskForm):
     name = StringField('Contact Map Name', validators=[InputRequired()])
     level = SelectField('Level', choices=level_choices, validators=[InputRequired()])
     functions = SelectMultipleField('Functions', choices=function_choices, validators=[validate_functions])
-    companies = StringField('Company Domains', validators=[URL(), InputRequired()])
+    companies = StringField('Companies', validators=[InputRequired()])

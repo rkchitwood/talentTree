@@ -1,4 +1,5 @@
 async function getResults(input){
+    //queries api to fetch result company domains
     const response = await $.ajax({
         url: '/api/companies/search',
         method: 'GET',
@@ -8,6 +9,7 @@ async function getResults(input){
 }
 
 function getHTML(results){
+    //returns html for results or button to add a company
     if(results.length > 0){
         console.log(results)
         const html = results.map(result => {
@@ -27,6 +29,7 @@ function getHTML(results){
 }
 
 function appendResults(results){
+    //appends html for results to DOM
     console.log('inappend');
     var dropdown = $('<div class="list-group" id="result-container"></div>');
     for(var result of results){
@@ -40,7 +43,8 @@ function appendResults(results){
 }
 
 $(document).ready(function(){
-    $('#company').on('input', async function(){
+    //attaches event listener to profile form company field
+    $('#profile-form #company').on('input', async function(){
         $('#result-container').empty()
         const input = $(this).val();
         const results = await getResults(input);
@@ -52,6 +56,7 @@ $(document).ready(function(){
 )
 
 $(document).ready(function() {
+    //attaches event listeners to profile form result options
     $('#profile-form').on('mouseenter', '.list-group-item', function(){
         $(this).removeClass('list-group-item-info').addClass('list-group-item-primary');
     });
@@ -65,4 +70,9 @@ $(document).ready(function() {
         }        
         $('#result-container').empty();        
     });
+});
+
+$(document).ready(function() {
+    //initiates select2 on map form companies
+    $('#companiesSelect').select2();
 });

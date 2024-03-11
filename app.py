@@ -4,7 +4,7 @@ from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction, Map
 from sqlalchemy.exc import IntegrityError
-from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm, ProfileForm
+from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm, ProfileForm, MapForm
 from seed import should_seed, seed_functions, seed_levels
 from security import generate_token, calculate_expiration
 from datetime import datetime
@@ -386,6 +386,38 @@ def list_maps():
     if not g.user:
         flash("Access Unauthorized", 'danger')
         return redirect('/')
-    maps = Map.query.filter_by(organization_id=g.user.organization_id)
+    maps = Map.query.filter_by(organization_id=g.user.organization_id).all()
     org = g.user.organization
     return render_template('maps.html', maps=maps, org=org)
+
+@app.route('/maps/new', methods=['GET', 'POST'])
+def show_and_handle_map_form():
+    '''renders form to create new map and redirects to map on creation'''
+    if not g.user:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    form = MapForm()
+    company_options = Company.query.filter_by(organization_id=g.user.organization_id)
+    if form.validate_on_submit():
+        try:
+            new_map = Map(name=form.name.data, 
+                          level_id=Level.query.filter_by(name=form.level.data).first().id, 
+                          organization_id=g.user.organization_id)
+            function_names = request.form.getlist('functions')
+            new_map.functions = Function.query.filter(Function.name.in_(function_names)).all()
+            company_ids = request.form.getlist('companies')
+            new_map.companies = Company.query.filter(Company.id.in_(company_ids), Company.organization_id == g.user.organization_id).all()
+            db.session.add(new_map)
+            db.session.commit()
+            return redirect(f'/maps/{new_map.id}')
+        except IntegrityError:
+            db.session.rollback()
+            flash("Problem creating map", 'danger')
+            return render_template('map-form.html', form=form, companies=company_options)
+    else:
+        return render_template('map-form.html', form=form, companies=company_options)
+    
+@app.route('/maps/<int:map_id')
+def show_map(map_id):
+    '''displays a map of companies and their selected roles'''
+    return render_template('map.html')

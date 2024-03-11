@@ -8,7 +8,7 @@ def connect_db(app):
     '''connects to database'''
     db.app=app
     db.init_app(app)
-    db.drop_all()
+    #db.drop_all()
     db.create_all()
 
 class User(db.Model):
@@ -173,7 +173,7 @@ class Map(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable = False)
-    level = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL'))
+    level_id = db.Column(db.Integer, db.ForeignKey('levels.id', ondelete='SET NULL'))
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'))
 
     functions = db.relationship('Function', secondary='function_map')

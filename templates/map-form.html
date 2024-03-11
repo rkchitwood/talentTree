@@ -3,8 +3,8 @@
 {% block content %}
 <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
-      <h2 class="join-message">add a contact</h2>
-      <form method="POST" id="profile-form">
+      <h2 class="join-message">add contact map</h2>
+      <form method="POST" id="map-form">
         {{ form.hidden_tag() }} 
         {% for field in form if field.widget.input_type != 'hidden' %}     
             {% for error in field.errors %}
@@ -15,7 +15,7 @@
                     {{ field(class="form-check-input") }}
                     <label class="form-check-label">{{ field.label.text }}</label>
                 </div>
-            {% elif field.type == 'SelectField' %}
+            {% elif field.id == 'level' %}
                 
             <div class="form-control"><label>{{ field.label.text }}</label>
                 <div class="row">
@@ -43,16 +43,16 @@
                         {% endfor %}
                     </div>
                 </div>
-            {% elif field.type == 'DateField' %}
-            <div class="form-control">
-                <div class="form-group row">
-                    <label class="col-md-7 col-form-label">{{ field.label.text }}</label>
-                    <div class="col-md-5">
-                        {{ field(class="form-control") }}
-                    </div>
+            {% elif field.id == 'companies' %}
+            <div class="form-control"><label>{{ field.label.text }}</label>
+                <div class="row">
+                    <select id="companiesSelect" name="companies" multiple="multiple">
+                        {% for company in companies %}
+                        <option value="{{ company.id }}">{{ company.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
-                
             {% else %}
                 {{ field(placeholder=field.label.text, class="form-control") }}  
             {% endif %}       
