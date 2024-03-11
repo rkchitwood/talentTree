@@ -74,6 +74,22 @@ class Organization(db.Model):
 
     def __repr__(self):
         return f"<Organization #{self.id}: {self.name}>"
+        
+class State(db.Model):
+    '''table for US States'''
+
+    __tablename__= 'states'
+
+    id = db.Column(db.String(2), primary_key=True)
+    name = db.Column(db.String(30), unique=True)
+
+class Country(db.Model):
+    '''table for countries'''
+
+    __tablename__ = 'countries'
+
+    id = db.Column(db.String(3), primary_key=True)
+    name = db.Column(db.String(56), unique=True)
 
 class Profile(db.Model):
     '''table for profiles'''
@@ -85,10 +101,16 @@ class Profile(db.Model):
     first_name = db.Column(db.String(30), nullable = False)
     last_name = db.Column(db.String(30), nullable = False)
     headline = db.Column(db.String(50), nullable = False)
+    city = db.Column(db.String(50), nullable=True)
+    state_id = db.Column(db.String(2), db.ForeignKey('states.id', ondelete='SET NULL'), nullable=True)
+    country_id = db.Column(db.String(3), db.ForeignKey('countries.id', ondelete='SET NULL'), nullable=True)
     organization_id = db.Column(db.Integer, db.ForeignKey('organizations.id', ondelete='SET NULL'), nullable=False)
     __table_args__ = (
         UniqueConstraint('linkedin_url', 'organization_id'),
     )
+
+    state = db.Relationship('State')
+    country = db.Relationship('Country')
 
     def __repr__(self):
         return f"<Profile #{self.id}: {self.first_name} {self.last_name}, {self.linkedin_url}>"

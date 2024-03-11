@@ -87,11 +87,27 @@ class ProfileForm(FlaskForm):
                 ('Senior Analyst', 'Senior Analyst'),
                 ('Junior', 'Junior')
                 ]
+    us_state_codes = [
+    (None, "Select State (optional)"), ("AL", "Alabama"), ("AK", "Alaska"), ("AZ", "Arizona"), ("AR", "Arkansas"), ("CA", "California"),
+    ("CO", "Colorado"), ("CT", "Connecticut"), ("DE", "Delaware"), ("FL", "Florida"), ("GA", "Georgia"),
+    ("HI", "Hawaii"), ("ID", "Idaho"), ("IL", "Illinois"), ("IN", "Indiana"), ("IA", "Iowa"), ("KS", "Kansas"),
+    ("KY", "Kentucky"), ("LA", "Louisiana"), ("ME", "Maine"), ("MD", "Maryland"), ("MA", "Massachusetts"),
+    ("MI", "Michigan"), ("MN", "Minnesota"), ("MS", "Mississippi"), ("MO", "Missouri"), ("MT", "Montana"),
+    ("NE", "Nebraska"), ("NV", "Nevada"), ("NH", "New Hampshire"), ("NJ", "New Jersey"), ("NM", "New Mexico"),
+    ("NY", "New York"), ("NC", "North Carolina"), ("ND", "North Dakota"), ("OH", "Ohio"), ("OK", "Oklahoma"),
+    ("OR", "Oregon"), ("PA", "Pennsylvania"), ("RI", "Rhode Island"), ("SC", "South Carolina"), ("SD", "South Dakota"),
+    ("TN", "Tennessee"), ("TX", "Texas"), ("UT", "Utah"), ("VT", "Vermont"), ("VA", "Virginia"), ("WA", "Washington"),
+    ("WV", "West Virginia"), ("WI", "Wisconsin"), ("WY", "Wyoming")
+]
+    country_codes = [('', 'Select Country'), ('USA', 'United States'), ('GBR', 'United Kingdom')]
     
     level = SelectField('Primary Level', choices=level_choices, validators=[InputRequired()])
     functions = SelectMultipleField('Primary Functions', choices=function_choices, validators=[validate_functions])
     start_date = DateField('Primary Start Date', validators=[InputRequired()])
     company = StringField('Primary Company Domain', validators=[URL(), InputRequired()])
+    city = StringField('City (optional)', validators=[Optional()])
+    state = SelectField('State', choices=us_state_codes, validators=[Optional()])
+    country = SelectField('Country', choices=country_codes, validators=[InputRequired()])
 
 class MapForm(FlaskForm):
     '''defines fields to create or edit a contact map'''

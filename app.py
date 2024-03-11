@@ -5,7 +5,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction, Map
 from sqlalchemy.exc import IntegrityError
 from forms import FirstAdminForm, InviteUserForm, RegisterUserForm, LoginForm, CompanyForm, ProfileForm, MapForm
-from seed import should_seed, seed_functions, seed_levels
+from seed import should_seed, seed_functions, seed_levels, seed_states, seed_countries
 from security import generate_token, calculate_expiration
 from datetime import datetime
 from sqlalchemy import or_
@@ -35,6 +35,8 @@ with app.app_context():
     if should_seed():
         seed_functions()
         seed_levels()
+        seed_states()
+        seed_countries()
 
 def email_registration(email, token):
     '''sends email to pending user so that they can sign up using the token-embedded link'''
@@ -307,12 +309,16 @@ def show_and_handle_profile_form():
                 last_name = form.last_name.data,
                 linkedin_url = form.linkedin_url.data,
                 headline = form.headline.data,
-                organization_id = g.user.organization_id
+                organization_id = g.user.organization_id,
+                city = form.city.data,
+                state_id = form.state.data,
+                country_id = form.country.data
             )
             db.session.add(new_profile)
             db.session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
                 db.session.rollback()
+                flash("Error: {}".format(str(e)), 'danger')
                 flash("Profile already exists", 'danger')
                 return render_template('profile-form.html', form=form)
         try:

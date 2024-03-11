@@ -5,13 +5,21 @@
     <div class="col-md-7 col-lg-5">
         <h2>{{ profile.first_name }} {{ profile.last_name}}</h2>
         <h3>{{ profile.headline }}</h3>
-
+        <h4>{% if profile.city %}{{ profile.city }}, {% endif %}{% if profile.state %}{{ profile.state.name }}, {% endif %}{{ profile.country.name }}</h4>
+        <ul class="list-group list-group-horizontal-lg">
+            <li class="list-group-item" style="width: 50%;"><b>Level</b></li>
+            <li class="list-group-item" style="width: 50%;"><b>Company</b></li>
+            <li class="list-group-item" style="width: 50%;"><b>Functions</b></li>
+        </ul> 
             <ul class="list-group list-group-horizontal-lg">
                 <li class="list-group-item" style="width: 50%;">{{ primary_role.level.name }}</li>
                 <li class="list-group-item" style="width: 50%;">{{ primary_role.company.name }}</li>
-                {% for f in functions %}
-                    <li class="list-group-item" style="width: 50%;">{{ f.name }}</li>
-                {% endfor %}
+                
+                    <li class="list-group-item" style="width: 50%;">
+                        {% for f in functions %}
+                            {{ f.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </li>
             </ul>     
     </div>
 </div>

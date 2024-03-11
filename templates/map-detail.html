@@ -22,7 +22,10 @@
                                     title="{{ cell.first_name }} {{ cell.last_name }}"
                                     data-bs-placement="bottom" 
                                     data-bs-container="body" 
-                                    data-bs-content="<b>Headline:</b> {{ cell.headline }} <br /> <b>Start Date:</b> {{ cell.primary_role().start_date.strftime('%B %Y') }}"
+                                    data-bs-content="<b>Headline:</b> {{ cell.headline }} <br /> 
+                                    <b>Start Date:</b> {{ cell.primary_role().start_date.strftime('%B %Y') }} <br /> 
+                                    <b>Location:</b> {% if cell.city %}{{ cell.city }}, {% endif %}
+                                    {% if cell.state_id %}{{ cell.state_id }}{% endif %}{{ cell.country }}"
                                     data-bs-html="true">
                                     {{ cell.first_name }} {{ cell.last_name }}
                                 </td>
