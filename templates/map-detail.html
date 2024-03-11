@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}talentTree - {{ map.name }}{% endblock %}
+{% block content %}
+
+        <table class="table map">
+            <thead>
+                <tr>
+                    <th scope="col">Company</th>
+                    {% for header in headers %}
+                        <th scope="col">{{ header }}</th>
+                    {% endfor %}
+                </tr>                
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        {% for cell in row %}
+                            {% if cell and cell.first_name %}
+                                <td class="map-cell" 
+                                    data-bs-toggle="popover" 
+                                    data-bs-trigger="hover" 
+                                    title="{{ cell.first_name }} {{ cell.last_name }}"
+                                    data-bs-placement="bottom" 
+                                    data-bs-container="body" 
+                                    data-bs-content="<b>Headline:</b> {{ cell.headline }} <br /> <b>Start Date:</b> {{ cell.primary_role().start_date.strftime('%B %Y') }}"
+                                    data-bs-html="true">
+                                    {{ cell.first_name }} {{ cell.last_name }}
+                                </td>
+                            {% elif cell and cell.name %}
+                                <th scope="row"><a href="/companies/{{ cell.id }}">{{ cell.name }}</a></th>
+                            {% else %}
+                                <td><a href="/profiles/new" target="_blank">add profile <span class="glyphicon glyphicon-new-window"></span> </a></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+{% endblock %}

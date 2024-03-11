@@ -417,7 +417,7 @@ def show_and_handle_map_form():
     else:
         return render_template('map-form.html', form=form, companies=company_options)
     
-@app.route('/maps/<int:map_id')
+@app.route('/maps/<int:map_id>')
 def show_map(map_id):
     '''displays a map of companies and their selected roles'''
     map = Map.query.get_or_404(map_id)
@@ -427,4 +427,4 @@ def show_map(map_id):
     
     headers = map.generate_map_headers()
     rows = map.generate_map_rows()
-    return render_template('map.html', headers=headers, rows=rows)
+    return render_template('map-detail.html', map=map, headers=headers, rows=rows)

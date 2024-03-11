@@ -76,3 +76,8 @@ $(document).ready(function() {
     //initiates select2 on map form companies
     $('#companiesSelect').select2();
 });
+
+$(document).ready(function(){
+    //initiates popover on map-profiles
+    $('.map-cell').popover();
+});

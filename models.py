@@ -182,13 +182,13 @@ class Map(db.Model):
 
     def generate_map_headers(self):
         '''returns the table headers for a contact map'''
-        return [f'{f.name} {self.level.name}' for f in self.functions]
+        return [f'{self.level.name} {f.name} ' for f in self.functions]
     
     def generate_map_rows(self):
         '''returns rows for a map'''
         table = []
         for co in self.companies:
-            row = [co.name]
+            row = [co]
             for function in self.functions:
                 role = Role.query.filter(
                     Role.company_id == co.id,
