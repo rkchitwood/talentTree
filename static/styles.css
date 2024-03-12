@@ -4,7 +4,7 @@ a {
 }
 
 a:hover{
-    text-decoration: underline
+    text-decoration: underline;
 }
 input.form-control:focus {
     outline: 1px solid blue;
@@ -12,4 +12,23 @@ input.form-control:focus {
 }
 .table {
     text-align: center;
+}
+.navbar {
+    background-color:slategray;
+    color: whitesmoke;
+}
+
+.nav-item {
+    color: whitesmoke;
+}
+
+.navbar-brand {
+    color: whitesmoke;
+}
+.nav-item a:hover {
+color: black !important;
+}
+
+.nav-item:hover {
+    color:black;
 }
