@@ -204,7 +204,7 @@ class Map(db.Model):
 
     def generate_map_headers(self):
         '''returns the table headers for a contact map'''
-        return [f'{self.level.name} {f.name} ' for f in self.functions]
+        return [f'{self.level.name} of {f.name}' for f in self.functions] if self.level.name != 'Chief' else [f'{self.level.name} {f.name} Officer' for f in self.functions]
     
     def generate_map_rows(self):
         '''returns rows for a map'''
