@@ -46,8 +46,7 @@ def email_registration(email, token):
         sender = GMAIL_USERNAME,
         recipients = [email],
         body=f'''
-    Welcome to talentTree! Please click the following link within
-24 hours to complete registration: 
+Welcome to talentTree! Please click the following link within 24 hours to complete registration: 
 /register/{token}
         '''
     )
@@ -138,6 +137,7 @@ def register_first_admin():
             db.session.add(org)
             db.session.commit()
         except IntegrityError:
+            db.session.rollback()
             flash("Organization already exists. Contact your admin for login information.", 'danger')
             return render_template('admin-register.html', form=form)
         try:
@@ -311,7 +311,7 @@ def show_and_handle_profile_form():
                 headline = form.headline.data,
                 organization_id = g.user.organization_id,
                 city = form.city.data,
-                state_id = form.state.data,
+                state_id=form.state.data if form.state.data != 'None' else None,
                 country_id = form.country.data
             )
             db.session.add(new_profile)

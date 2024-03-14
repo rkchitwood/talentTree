@@ -24,10 +24,10 @@
                                     data-bs-container="body" 
                                     data-bs-content="<b>Headline:</b> {{ cell.headline }} <br /> 
                                     <b>Start Date:</b> {{ cell.primary_role().start_date.strftime('%B %Y') }} <br /> 
-                                    <b>Location:</b> {% if cell.city %}{{ cell.city }}, {% endif %}
-                                    {% if cell.state_id %}{{ cell.state_id }}{% endif %}{{ cell.country }}"
+                                    <b>Location:</b> {% if cell.city %}{{ cell.city }} {% endif %}
+                                    {% if cell.state_id %}{{ cell.state_id }}, {% endif %}{{ cell.country_id }}"
                                     data-bs-html="true">
-                                    {{ cell.first_name }} {{ cell.last_name }}
+                                    {{ cell.first_name }} {{ cell.last_name }} <a href="/profiles/{{ cell.id }}" target="_blank"><span class="fa fa-external-link-alt"></span></a> <a href="{{ cell.linkedin_url }}" target="_blank"><i class="fab fa-linkedin"></i></a>
                                 </td>
                             {% elif cell and cell.name %}
                                 <th scope="row"><a href="/companies/{{ cell.id }}">{{ cell.name }}</a></th>
