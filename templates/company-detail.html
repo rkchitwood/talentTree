@@ -4,27 +4,50 @@
 <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
       <h1 class="join-message">{{ company.name }} details</h1><br>
-      <h3>{{ company.name }} Employees:</h3>
+      <h2>{{ company.name }} Employees:</h2>
         {% if employees %}
-        {% for e in employees %}
-            <ul class="list-group list-group-horizontal-lg">
-                <li class="list-group-item"><a href="/profiles/{{ e.id }}">{{ e.first_name }}{{ e.last_name }}</a></li>
-                <li class="list-group-item">{{ e.headline }}</li>
-            </ul>
-        {% endfor %}  
+        
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">name</th>
+                        <th scope="col">headline</th>
+                    </tr>                        
+                </thead>
+                <tbody>
+                    {% for e in employees %}
+                        <tr>
+                            <td>{{ e.first_name }} {{ e.last_name }}</td>
+                            <td>{{ e.headline }}</td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>  
         {% else %}
-            <li>No employees yet!</li>
+            No employees yet!
         {% endif %}  
  <h2>{{ company.name }} Alumni:</h2>
         {% if alumni %}
-            {% for a in alumni %}
-            <ul class="list-group list-group-horizontal-lg">
-                <li class="list-group-item"><a href="/profiles/{{ a.id }}">{{ a.first_name }}{{ a.last_name }}</a></li>
-                <li class="list-group-item">{{ a.headline }}</li>
-            </ul>
-            {% endfor %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">name</th>
+                        <th scope="col">headline</th>
+                    </tr>                        
+                </thead>
+                <tbody>
+                    {% for a in alumni %}
+                        <tr>
+                            <td>{{ a.first_name }} {{ a.last_name }}</td>
+                            <td>{{ a.headline }}</td>
+                        </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
         {% else %}
-            <li>No alumni yet!</li>
+            No alumni yet!
         {% endif %}
 
     </div>

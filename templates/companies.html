@@ -6,14 +6,26 @@
         <h2>{{ org.name }} Companies:</h2><br>
             <a href="/companies/new"><button class="btn btn-primary btn-lg btn-block">create company</button></a><br>
             {% if companies %}
-                {% for c in companies %}
-                <ul class="list-group list-group-horizontal-lg">
-                    <li class="list-group-item" style="width: 50%;"><a href="/companies/{{ c.id }}">{{ c.name }}</a></li>
-                    <li class="list-group-item" style="width: 50%;"><a href="{{ c.domain }}">{{ c.domain }}</a></li>
-                </ul>
-                {% endfor %}
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">name</th>
+                            <th scope="col">domain</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        {% for c in companies %}
+                            <tr>
+                                <td><a href='/companies/{{ c.id }}'>{{ c.name }}</a></td>
+                                <td><a href='{{ c.domain }}'>{{ c.domain }}</a></td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
             {% else %}
-                <li>No companies yet!</li>
+                No companies yet!
             {% endif %}
         
     </div>

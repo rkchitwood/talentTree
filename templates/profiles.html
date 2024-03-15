@@ -6,17 +6,25 @@
         <h2>{{ org.name }} Profiles:</h2><br>
             <a href="/profiles/new"><button class="btn btn-primary btn-lg btn-block">create profile</button></a><br>
             {% if profiles %}
-                {% for p in profiles %}
-                <ul class="list-group list-group-horizontal-lg">
-                    <li class="list-group-item" style="width: 50%;"><a href="/profiles/{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</a></li>
-                    <li class="list-group-item" style="width: 50%;">{{ p.headline }}</li>
-
-                </ul>
-                {% endfor %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">name</th>
+                            <th scope="col">headline</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        {% for p in profiles %}
+                            <tr>
+                                <td><a href='/profiles/{{ p.id }}'>{{ p.first_name }} {{ p.last_name }}</a></td>
+                                <td>{{ p.headline }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
-                <li>No companies yet!</li>
-            {% endif %}
-        
+                No profiles yet!
+            {% endif %}        
     </div>
 </div>
 {% endblock %}

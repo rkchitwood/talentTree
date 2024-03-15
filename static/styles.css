@@ -16,6 +16,7 @@ input.form-control:focus {
 .navbar {
     background-color:slategray;
     color: whitesmoke;
+    margin-bottom: 10px;
 }
 
 .nav-item {
