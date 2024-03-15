@@ -110,6 +110,7 @@ class AppTestCase(TestCase):
             self.assertEqual(response.status_code, 200)
             html = response.get_data(as_text=True)
             self.assertIn("2nd test org Users", html)
+
             response = client.post('/signup', 
                                    data={'email' : 'third@test.com', 'password' : 'password', 'confirm_password' : 'password', 'organization' : '2nd test org'}, 
                                    follow_redirects=True)
@@ -117,7 +118,82 @@ class AppTestCase(TestCase):
             html = response.get_data(as_text=True)
             self.assertNotIn('2nd test org Users', html)
 
+    def test_org_homepage(self):
+        '''tests organization homepage'''
+        with self.client as client:    
+            response = client.get(f'/organizations/{self.organization_id}')
+            self.assertEqual(response.status_code, 302)
+            html = response.get_data(as_text=True)
+            self.assertNotIn("test org", html)
 
+            with client.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.email
+            response = client.get(f'/organizations/{self.organization_id}')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("test org", html)
 
+    def test_companies(self):
+        '''tests companies routes'''
+        with self.client as client:    
+            response = client.get('/companies')
+            self.assertEqual(response.status_code, 302)
+            html = response.get_data(as_text=True)
+            self.assertNotIn("test org", html)
 
+            response = client.get(f'/companies/{self.company_id}')
+            self.assertEqual(response.status_code, 302)
+            html = response.get_data(as_text=True)
+            self.assertNotIn("Test", html)
 
+            with client.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.email
+            response = client.get('/companies')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("test org", html)
+
+            response = client.get(f'/companies/{self.company_id}')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("Test", html)
+
+    def test_profiles(self):
+        '''tests profiles routes'''
+        with self.client as client:
+            response = client.get('/profiles')
+            self.assertEqual(response.status_code, 302)
+            html = response.get_data(as_text=True)
+            self.assertNotIn("test org", html)
+
+            response = client.get(f'/profiles/{self.profile_id}')
+            self.assertEqual(response.status_code, 302)
+            html = response.get_data(as_text=True)
+            self.assertNotIn("Test", html)
+
+            with client.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.email
+            response = client.get('/profiles')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("test org", html)
+
+            response = client.get(f'/profiles/{self.profile_id}')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("Test", html)
+
+    def test_maps(self):
+        '''tests maps routes'''
+        with self.client as client:
+            response = client.get('/maps')
+            self.assertEqual(response.status_code, 302)
+            html = response.get_data(as_text=True)
+            self.assertNotIn("test org", html)
+
+            with client.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.email
+            response = client.get('/maps')
+            self.assertEqual(response.status_code, 200)
+            html = response.get_data(as_text=True)
+            self.assertIn("test org", html)
