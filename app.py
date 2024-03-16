@@ -459,7 +459,7 @@ def edit_map(map_id):
 def delete_map(map_id):
     '''deletes the map and redirects to maps'''
     map = Map.query.get_or_404(map_id)
-    if not g.user or map.organization_id != g.user.organization_id:
+    if not g.user.is_admin or map.organization_id != g.user.organization_id:
         flash("Access Unauthorized", 'danger')
         return redirect('/')
     else:
