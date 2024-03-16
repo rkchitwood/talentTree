@@ -231,7 +231,7 @@ class FunctionMap(db.Model):
     __tablename__ = 'function_map'
 
     function_id = db.Column(db.Integer, db.ForeignKey('functions.id', ondelete='SET NULL'), primary_key = True)
-    map_id = db.Column(db.Integer, db.ForeignKey('maps.id', ondelete='SET NULL'), primary_key = True)
+    map_id = db.Column(db.Integer, db.ForeignKey('maps.id', ondelete='cascade'), primary_key = True)
     
 
 class CompanyMap(db.Model):
@@ -240,4 +240,4 @@ class CompanyMap(db.Model):
     __tablename__ = 'company_map'
 
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id', ondelete='SET NULL'), primary_key = True)
-    map_id = db.Column(db.Integer, db.ForeignKey('maps.id', ondelete='SET NULL'), primary_key = True)
+    map_id = db.Column(db.Integer, db.ForeignKey('maps.id', ondelete='cascade'), primary_key = True)

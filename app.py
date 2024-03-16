@@ -294,9 +294,6 @@ def show_and_handle_profile_form():
     form = ProfileForm()
     if form.validate_on_submit():
         try:
-            #make sure company domain in companies.domain w/ org_id
-            #make this form primary only, enddate none
-            #create headline from roles
             valid_domain = Company.query.filter(
                 (Company.domain == form.company.data) &
                 (Company.organization_id == g.user.organization_id)
@@ -434,3 +431,38 @@ def show_map(map_id):
     headers = map.generate_map_headers()
     rows = map.generate_map_rows()
     return render_template('map-detail.html', map=map, headers=headers, rows=rows)
+
+@app.route('/maps/<int:map_id>/edit', methods=['GET', 'POST'])
+def edit_map(map_id):
+    '''renders form to edit map and redirects to map on submit'''
+    map = Map.query.get_or_404(map_id)
+    if not g.user or g.user.organization_id != map.organization_id:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    form = MapForm(obj=map)
+    function_names = [f.name for f in map.functions]
+    company_options = Company.query.filter_by(organization_id=g.user.organization_id)
+    selected_company_ids = [c.id for c in map.companies]
+    if form.validate_on_submit():
+        map.name = form.name.data
+        map.level_id = Level.query.filter_by(name=form.level.data).first().id
+        function_names = request.form.getlist('functions')
+        map.functions = Function.query.filter(Function.name.in_(function_names)).all()
+        company_ids = request.form.getlist('companies')
+        map.companies = Company.query.filter(Company.id.in_(company_ids), Company.organization_id == g.user.organization_id).all()
+        db.session.commit()
+        return redirect(f'/maps/{map_id}')
+    else:
+        return render_template('map-edit.html', map=map, form=form, companies=company_options, function_names=function_names, selected_company_ids=selected_company_ids)
+    
+@app.route('/maps/<int:map_id>/delete', methods=['POST'])
+def delete_map(map_id):
+    '''deletes the map and redirects to maps'''
+    map = Map.query.get_or_404(map_id)
+    if not g.user or map.organization_id != g.user.organization_id:
+        flash("Access Unauthorized", 'danger')
+        return redirect('/')
+    else:
+        db.session.delete(map)
+        db.session.commit()
+        return redirect('/maps')

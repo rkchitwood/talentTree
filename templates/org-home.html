@@ -4,33 +4,62 @@
 <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
         <h2>{{ org.name }} Users:</h2>
-            {% for u in users %}
-            <ul class="list-group list-group-horizontal-lg">
-                <li class="list-group-item" style="width: 50%;">{{ u.email }}</li>
-                {% if u.is_admin %}
-                <li class="list-group-item" style="width: 50%;">Admin</li>
-                {% endif %}
-            </ul>            
-            {% endfor %}    
+            <table class="table home">
+                <thead>
+                    <tr>
+                        <th scope="col">username</th>
+                        <th scope="col">admin</th>
+                    </tr>                        
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                        <tr>
+                            <td>{{ u.email }}</td>
+                            <td>{% if u.is_admin %}admin{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>    
         <h2>{{ org.name }} Contacts:</h2>
             {% if profiles %}
-                {% for p in profiles %}
-                    <ul class="list-group list-group-horizontal-lg">
-                        <li class="list-group-item" style="width: 50%;"><a href="/profiles/{{ p.id }}">{{ p.first_name }} {{ p.last_name }}</a></li>
-                        <li class="list-group-item" style="width: 50%;">{{ p.headline }}</li>
-                    </ul>
-                {% endfor %}
+                <table class="table home">
+                    <thead>
+                        <tr>
+                            <th scope="col">name</th>
+                            <th scope="col">headline</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        {% for p in profiles %}
+                            <tr>
+                                <td><a href='/profiles/{{ p.id }}'>{{ p.first_name }} {{ p.last_name }}</a></td>
+                                <td>{{ p.headline }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
                 <li>No Profiles yet!</li>
             {% endif %}
             <h2>{{ org.name }} Companies:</h2>
             {% if companies %}
-                {% for c in companies %}
-                <ul class="list-group list-group-horizontal-lg">
-                    <li class="list-group-item" style="width: 50%;"><a href="/companies/{{ c.id }}">{{ c.name }}</a></li>
-                    <li class="list-group-item" style="width: 50%;"><a href="{{ c.domain }}">{{ c.domain }}</a></li>
-                </ul>
-                {% endfor %}
+                <table class="table home">
+                    <thead>
+                        <tr>
+                            <th scope="col">name</th>
+                            <th scope="col">domain</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        {% for c in companies %}
+                            <tr>
+                                <td><a href='/companies/{{ c.id }}'>{{ c.name }}</a></td>
+                                <td><a href='{{ c.domain }}'>{{ c.domain }}</a></td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
             {% else %}
                 <li>No companies yet!</li>
             {% endif %}

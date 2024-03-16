@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 {% block title %}talentTree - {{ map.name }}{% endblock %}
 {% block content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1>{{ map.name }}</h1>
+    <div>
+        <a href="/maps/{{ map.id }}/edit"><button class="btn custom-btn btn-sm" id="profile-button">edit</button></a>
+        {% if g.user.is_admin %}
+        <form  class="d-inline-block" method="post" action="/maps/{{ map.id }}/delete" onsubmit="return confirm('Are you sure you want to delete this map?');">
+            <button type="submit" class="btn btn-danger btn-sm" id="delete-button">delete</button>
+        </form>
+    {% endif %}
+    </div>
+</div>
 
         <table class="table map">
             <thead>

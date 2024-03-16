@@ -33,3 +33,17 @@ color: black !important;
 .nav-item:hover {
     color:black;
 }
+
+.home td, .home th {
+    width: 50%;
+}
+
+.custom-btn {
+    background-color: slategray;
+    color: whitesmoke; 
+}
+
+.custom-btn:hover {
+    background-color: darkslategray;
+    color: whitesmoke; 
+}
