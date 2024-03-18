@@ -54,6 +54,11 @@
             </div>
                 
             {% else %}
+            {% elif field.id == 'state' %}
+                {{ field }}
+            { elif field.id == 'country' %}
+                {{}}
+            {% else %}
                 {{ field(placeholder=field.label.text, class="form-control") }}  
             {% endif %}       
         {% endfor %} 
