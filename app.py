@@ -11,8 +11,8 @@ from datetime import datetime
 from sqlalchemy import or_
 import os
 
-gmail_username = os.environ.get('GMAIL_USERNAME')
-gmail_password = os.environ.get('GMAIL_PASSWORD')
+GMAIL_USERNAME = os.environ.get('GMAIL_USERNAME')
+GMAIL_PASSWORD = os.environ.get('GMAIL_PASSWORD')
 
 CURR_USER_KEY = "curr_user"
 
