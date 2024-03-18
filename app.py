@@ -1,6 +1,6 @@
 from flask import Flask, session, g, redirect, render_template, flash, jsonify, request
 from flask_mail import Mail, Message
-#from secret import GMAIL_USERNAME, GMAIL_PASSWORD
+from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction, Map
 from sqlalchemy.exc import IntegrityError
@@ -9,10 +9,6 @@ from seed import should_seed, seed_functions, seed_levels, seed_states, seed_cou
 from security import generate_token, calculate_expiration
 from datetime import datetime
 from sqlalchemy import or_
-import os
-
-GMAIL_USERNAME = os.environ.get('GMAIL_USERNAME')
-GMAIL_PASSWORD = os.environ.get('GMAIL_PASSWORD')
 
 CURR_USER_KEY = "curr_user"
 
