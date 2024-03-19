@@ -51,13 +51,11 @@
                         {{ field(class="form-control") }}
                     </div>
                 </div>
-            </div>
-                
-            {% else %}
+            </div>              
             {% elif field.id == 'state' %}
-                {{ field }}
-            { elif field.id == 'country' %}
-                {{}}
+                {{ field(class="form-control") }}
+            {% elif field.id == 'country' %}
+                {{ field(class="form-control") }}
             {% else %}
                 {{ field(placeholder=field.label.text, class="form-control") }}  
             {% endif %}       
