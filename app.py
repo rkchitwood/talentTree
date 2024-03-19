@@ -9,6 +9,7 @@ from seed import should_seed, seed_functions, seed_levels, seed_states, seed_cou
 from security import generate_token, calculate_expiration
 from datetime import datetime
 from sqlalchemy import or_
+import os
 
 CURR_USER_KEY = "curr_user"
 
@@ -16,7 +17,8 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY']='key'
 debug=DebugToolbarExtension(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///talenttree'
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ.get('DATABASE_URL', 'postgresql:///talenttree'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
 app.config['SQLALCHEMY_ECHO'] = True
 
