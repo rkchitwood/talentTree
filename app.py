@@ -12,6 +12,7 @@ from sqlalchemy import or_
 import os
 
 CURR_USER_KEY = "curr_user"
+BASE_URL = 'https://talenttree.onrender.com'
 
 app = Flask(__name__)
 
@@ -49,7 +50,7 @@ def email_registration(email, token):
         recipients = [email],
         body=f'''
 Welcome to talentTree! Please click the following link within 24 hours to complete registration: 
-/register/{token}
+{BASE_URL}/register/{token}
         '''
     )
 
@@ -69,7 +70,7 @@ For your records, your username is:
 {email}
 
 Thank you again!
-    -the talentTree team
+-the talentTree team
         '''
     )
 
