@@ -16,6 +16,7 @@
     - Back-End: Python, Flask, SQL-Alchemy, PostgreSQL, WTForms
 
 - **Usage:**
+    - You can visit talentTree deployed through Render here: https://talenttree.onrender.com/
     - This project was completed using python 3.7.9 (dev)
     - to run this project locally at http://127.0.0.1:5000/ do the following after setting up your virtual environment and initializing Postgres: 
     ```
