@@ -53,7 +53,7 @@ class ProfileForm(FlaskForm):
     first_name = StringField('First Name', validators=[InputRequired()])
     last_name = StringField('Last Name', validators=[InputRequired()])
     linkedin_url = StringField('LinkedIn URL', validators=[InputRequired(), URL()])    
-    headline = StringField('Headline (Optional)', validators=[Optional()])
+    headline = StringField('Headline (Optional)', validators=[Optional(), Length(max=50)])
 
     #role fields
 
