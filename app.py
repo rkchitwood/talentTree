@@ -215,32 +215,29 @@ def invite_users():
 def token_registration(token):
     '''allows a new user to register from an emailed link and handles submission'''
     pending_user = PendingUser.query.filter_by(token=token).first()
-    if pending_user:
+    if pending_user and pending_user.expiration >= datetime.now():
         is_admin = pending_user.pending_admin
         org_id = pending_user.organization_id
         email = pending_user.email
-        db.session.delete(pending_user)
-        db.session.commit()
-        current_time = datetime.now()
-
-        if current_time <= pending_user.expiration:
-            form = RegisterUserForm()
-            if form.validate_on_submit():
-                try:
-                    password = form.password.data
-                    new_user = User.register(
-                        email =email, 
-                        password = password, 
-                        organization_id = org_id, 
-                        is_admin = is_admin)
-                    db.session.add(new_user)
-                    db.session.commit()
-                    do_login(new_user)
-                except IntegrityError:
-                    flash("Username already taken", 'danger')
-                    return render_template('invite-user.html', form=form)
-                return redirect(f'/organizations/{new_user.organization_id}')
-            return render_template('user-register.html', form=form)
+        
+        form = RegisterUserForm()
+        if form.validate_on_submit():
+            try:
+                password = form.password.data
+                new_user = User.register(
+                    email =email, 
+                    password = password, 
+                    organization_id = org_id, 
+                    is_admin = is_admin)
+                db.session.add(new_user)
+                db.session.delete(pending_user)
+                db.session.commit()
+                do_login(new_user)
+            except IntegrityError:
+                flash("Username already taken", 'danger')
+                return render_template('user-register.html', form=form)
+            return redirect(f'/organizations/{new_user.organization_id}')
+        return render_template('user-register.html', form=form)
     flash("Invalid Token")
     return redirect('/')
 
