@@ -97,7 +97,7 @@ class Profile(db.Model):
     __tablename__ = 'profiles'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    linkedin_url = db.Column(db.Text, nullable = False, unique=True)
+    linkedin_url = db.Column(db.Text, nullable = False)
     first_name = db.Column(db.String(30), nullable = False)
     last_name = db.Column(db.String(30), nullable = False)
     headline = db.Column(db.String(50), nullable = False)
