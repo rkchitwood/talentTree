@@ -1,6 +1,6 @@
 from flask import Flask, session, g, redirect, render_template, flash, jsonify, request
 from flask_mail import Mail, Message
-from secret import GMAIL_USERNAME, GMAIL_PASSWORD
+from secret import GMAIL_USERNAME, GMAIL_PASSWORD, SECRET_KEY
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Organization, PendingUser, Company, Profile, Role, Function, Level, RoleFunction, Map
 from sqlalchemy.exc import IntegrityError
@@ -16,7 +16,7 @@ BASE_URL = 'https://talenttree.onrender.com'
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY']='key'
+app.config['SECRET_KEY']= SECRET_KEY
 debug=DebugToolbarExtension(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgresql:///talenttree'))
